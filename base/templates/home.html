@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+
+{% load static %}
+<html lang="en">
+
+<style>
+  navbarpf{
+    margin-top: 20px;
+    margin-left:  40px;
+  }
+/* Control the left side */
+.left {
+  left: 0;
+  background-color: #111;
+}
+
+/* Control the right side */
+.right {
+  right: 0;
+  background-color: red;
+}
+
+table.t1 {
+  border-collapse: collapse;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.t1 th, .t1 td {
+  padding: 4px 8px;
+}
+.t1 thead th {
+  background:rgb(0, 0, 0);
+  text-align: left;
+  font-size: 15px;
+  color: rgb(76, 235, 149);
+}
+.t1 tr {
+  border-right: 1px solid #000000;
+}
+.t1 tbody tr {
+  border-bottom: 1px solid #2a2a2a;
+}
+.t1 tbody tr:nth-child(odd) {
+  background: #4e4e4e;
+}
+.t1 tbody th, .t1 tbody tr:nth-child(even) td {
+  border-right: 1px solid rgb(76, 235, 149);
+}
+.t1 tfoot th {
+  background: #000000;
+  text-align: left;
+  font-weight: normal;
+  font-size: 10px;
+  color: rgb(76, 235, 149);
+}
+.t1 tr *:nth-child(3), .t1 tr *:nth-child(4) {
+  text-align: right;
+}
+</style>
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <link rel="stylesheet" type="text/css" media="screen" href="{% static 'css/style.css' %}">
+
+  <title>Trading bot ({{status}})</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="{% static 'img/favicon.png' %}" rel="icon">
+  <link href="{% static 'img/apple-touch-icon.png' %}" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <!-- Vendor CSS Files -->
+  <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/boxicons/css/boxicons.min.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/remixicon/remixicon.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="{'css/style.css' %}" rel="stylesheet">
+
+</head>
+<body>
+  <div style="margin-bottom:10px;margin-left:40px;"> 
+    <nav id="navbar" class="navbar">
+      <ul>
+         <li><a class="nav-link" href="{% url 'home' %}#troubleshooting">Troubleshooting</a></li>
+         <li><a class="nav-link" href="{% url 'home' %}#contact">Contact</a></li>
+         <li><a class="nav-link" href="{% url 'home' %}#more">More Products</a></li>
+       </ul>
+      <i class="bi bi-list mobile-nav-toggle"></i>
+    </nav><!-- .navbar -->
+  </div>
+
+
+      <!-- ======= Portfolio Details ======= -->
+      <section id="about2" class="about section-show">
+        <div class="container">
+        <h2 class="portfolio-title" style="color:rgb(76, 235, 149);">My NASDAQ trading bot ({{status}})</h2>
+        
+          <div class="row">
+            <div class="col-lg-4 portfolio-info" style="color:rgb(210, 210, 210); background:rgb(20, 20, 20);">
+              <form name="startapp" method="POST">
+                {% csrf_token %}
+                  {% csrf_token %}
+                  {%if status == 'not connected'%}
+                  <h5>The program is unable to connect to Interactive Brokers</h5>
+                  <li>Is either TWS or IB gateway currently opened? </li>
+                  <span style="color: rgb(76, 235, 149);">If not you must open either one</span>
+                  <li>Is the connection port set to 7497? </li>
+                  <span style="color: rgb(76, 235, 149);">If not you must go to either TWS or Gateway</span>
+                    <li>
+                    <span style="color: rgb(76, 235, 149);"> For Gateway : Configure (top bar) >> Settings >> API >> Settings, set the socket port to 7497</span>
+                    </li>
+                    <li>
+                      <span style="color: rgb(76, 235, 149);"> For TWS : Configure (top bar) >> Settings >> API >> Settings, set the socket port to 7497</span>
+                      </li>
+                  {% endif %}
+                  {% if status == 'connected' %}
+                  <h4>Select stocks</h4>
+                  <p>Choose between 1 to 6 stocks for best performance</p>
+                    <select name="stocks" size="10" style="background:rgb(178, 178, 178); width: 400px;" multiple>
+                        {% for name in stock_names %}
+                            <option type="checkbox" value="{{name}}">{{name}}</option>
+                        {% endfor %}
+                    </select>
+                  <!--<input type="submit" value="Confirm" style="background:rgb(178, 178, 178);">-->
+                   <p>Hold down the Ctrl (Windows) / 
+                Command (Mac) button to select multiple options.</p>
+                {% elif status == 'running' %}
+                {% if tickers_is_empty %}
+                    <h5 style="color:rgb(76, 235, 149);"> You have selected no stocks </h5>
+                {% else %}
+                
+                <h5 style="color:rgb(76, 235, 149);"> You have selected these {{tickers|length}} stocks </h5>
+                <ol>
+                  {% for ticker in tickers %}
+                    <li>{{ticker}}</li>
+                  {% endfor %}
+                </ol>
+                {% endif %}
+                {% endif %}
+                {% if status == 'connected' %}
+                <h4>Choose a stop loss</h4>
+                  <input placeholder="Ex: 2%" name="stoploss" style="background:rgb(178, 178, 178);">
+                  <p>*Stop losses are highly recommended.</p> <p></p>*To limit transaction costs try remaining between 1% and 5%</p>
+                    <h4>Start bot</h4>
+
+                    
+                    <input type="submit" value="Start" style="background:rgb(178, 178, 178); height:35px;width:120px">
+                  </form>
+                    <p>*Once the bot is running you will be able to stop it</p>
+
+                  {% elif status == 'running' %}
+                  <h5 style="color:rgb(76, 235, 149);">With a stop loss of: </h5>
+                  <h5 style="text-align: center;">{{stoploss}}</h5>
+                  <p>*Stop losses are highly recommended.</p> <p></p>*To limit transaction costs try remaining between 1% and 5%</p>
+                  
+                  <h4>Terminate bot</h4>
+                    <input type="submit" value="Stop" style="background:rgb(178, 178, 178); height:35px;width:120px">
+                    <input type="submit" value="Stop & sell all" name="sellall" style="background:rgb(248, 178, 178); height:35px;width:180px">
+                  
+                  </form>
+                  {% endif %}
+
+  
+                <p style="color:rgb(255, 255, 255);">
+                  {{project.description}}
+                </p>
+            </div>
+
+
+            <!--<div class="col-lg-4 portfolio-info" style="color:rgb(210, 210, 210); background:rgb(60, 60, 60);">
+                    <h1>Positions</h1>
+            </div>-->
+
+            <div class="col-lg-8 portfolio-info" style="color:rgb(210, 210, 210); background:rgb(60, 60, 60);">
+              <h4>My account</h4>
+              <div>
+                {% if pos %} 
+                <table class="t1">
+                  <thead>
+                  <tr>Positions</tr>
+                  <tr><th>Symbol</th><th>Type</th><th>Position</th><th>Average cost</th></tr>
+                  </thead>
+                  <tfoot>
+                  <tr><th colspan="4">Positions held in your account</th></tr>
+                  </tfoot>
+                  <tbody>
+                    {% for i in pos %}
+                      <tr>
+                        <th>{{i.Symbol}}</th>
+                        <td>{{i.SecType}}</td>
+                        <td>{{i.Position}}</td>
+                        <td>{{i.Avg_cost}}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                  </table>
+                {% endif %}
+              </div>
+              <h4>View stocks</h4>
+                    <!-- TradingView Widget BEGIN -->
+                    <div class="tradingview-widget-container">
+                      <div id="tradingview_07451" style="height:400px;"></div>
+                      <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/symbols/NASDAQ-AAPL/" rel="noopener" target="_blank"></div>
+                      <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                      <script type="text/javascript">
+                      new TradingView.widget(
+                      {
+                      "autosize": true,
+                      "symbol": "NASDAQ:AAPL",
+                      "interval": "15",
+                      "timezone": "Etc/UTC",
+                      "theme": "dark",
+                      "style": "8",
+                      "locale": "en",
+                      "toolbar_bg": "#f1f3f6",
+                      "enable_publishing": false,
+                      "withdateranges": true,
+                      "allow_symbol_change": true,
+                      "container_id": "tradingview_07451"
+                    }
+                      );
+                      </script>
+                    </div>
+<!-- TradingView Widget END -->
+            </div>
+
+
+        </div>
+      </section><!-- End Portfolio Details -->
+
+    </div><!-- End #main -->
+
+  
+
+  <!-- Vendor JS Files -->
+  <script src="{% static 'vendor/purecounter/purecounter.js' %}"></script>
+  <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'vendor/glightbox/js/glightbox.min.js' %}"></script>
+  <script src="{% static 'vendor/isotope-layout/isotope.pkgd.min.js' %}"></script>
+  <script src="{% static 'vendor/swiper/swiper-bundle.min.js' %}"></script>
+  <script src="{% static 'vendor/waypoints/noframework.waypoints.js' %}"></script>
+
+
+  <!-- Template Main JS File -->
+  <script src="{% static 'js/main.js' %}"></script>
+
+</body>
+
+</html>
