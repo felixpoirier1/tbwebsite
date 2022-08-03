@@ -3,12 +3,14 @@ import sqlite3
 import pandas as pd
 import os
 
+
 db = sqlite3.connect(os.getcwd()+'/ticks.db')
 tickers = ["AAPL", "META"]
 oldest_date = {}
 latest_date = {}
 for ticker in tickers:
     c= db.cursor()
+
     c.execute("CREATE TABLE IF NOT EXISTS TICKER_{} (time datetime primary key, price real(15,5), volume integer)".format(ticker))
     oldest_date[ticker] = c.execute("SELECT time FROM TICKER_{} ORDER BY time DESC LIMIT 1".format(ticker)).fetchall()[0][0]
     latest_date[ticker] = c.execute("SELECT time FROM TICKER_{} ORDER BY time ASC LIMIT 1".format(ticker)).fetchall()[0][0]

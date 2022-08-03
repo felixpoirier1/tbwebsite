@@ -24,6 +24,7 @@ def strtime_to_timestamp(value):
     return pd.Timestamp(year=year, month=month, day=day,hour=hour, minute=minute)
 
 def extractStockData():
+    
     pass
 
 def extractFedData(start, end):

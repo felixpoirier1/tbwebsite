@@ -19,6 +19,7 @@ import time
 from pandas.tseries.holiday import USFederalHolidayCalendar as calendar
 #from optimizer import Portfolio
 import os
+import yahoo_fin.stock_info as si
 
 # will need to be added to global.py later
 global stocks_dict
@@ -27,16 +28,17 @@ path = os.getcwd()
 
 models_path = path 
 
+def fetchTickers():
+    stocks = si.tickers_nasdaq()
+    pd.DataFrame(stocks).to_csv("base/IBAPI/stocks_data.csv", ",", index_label=False)
+
+
 
 global tickers
-with open('base/nasdaq_stocks.csv', 'r') as csv_file:
-    content = csv_file.readlines()
-    data = [pair.strip().split(';') for pair in content[1:]]
-    stocks_dict = {stock[0]: stock[1] for stock in data}
-    stock_names = stocks_dict.keys()
-    tickers = [stocks_dict[x] for x in stocks_dict]    
-    csv_file.close()
-tickers = ["AAPL", "META"]
+fetchTickers()
+tickers = pd.read_csv("base/IBAPI/stocks_data.csv")
+print(tickers.iloc[0:5])
+tickers = tickers["0"].to_list()
 
 #tickers = ["META","INTC","AMZN", 'FTNT', 'MSFT', 'GOOGL', 'TSLA', 'JNJ', 'UNH', 'META', 'SHOP']
 global holidays
@@ -73,14 +75,15 @@ class TradeApp(EWrapper, EClient):
         self.pos_df = self.pos_df.append(dictionary, ignore_index=True)
 
     def historicalData(self, reqId, bar):
+        stocks = si.tickers_nasdaq()
         print(f'Time: {bar.date}, Close: {bar.close}, Volume {bar.volume}')
         c=db.cursor()
-        vals = [dt.datetime.fromtimestamp(bar.date).strftime("%Y-%m-%d %H:%M:%S"),bar.close, bar.volume]
-        query = "INSERT INTO TICKER_{}(time,price,volume) VALUES (?,?,?)".format(tickers[reqId])
-        c.execute(query,vals)
 
         if reqId not in self.data:
             self.data[reqId] = [{"Date":bar.date,"Open":bar.open,"High":bar.high,"Low":bar.low,"Close":bar.close,"Volume":bar.volume}]
+            vals = [dt.datetime.fromtimestamp(bar.date).strftime("%Y-%m-%d %H:%M:%S"),bar.close, bar.volume]
+            query = "INSERT INTO TICKER_{}(time,price,volume) VALUES (?,?,?)".format(tickers[reqId])
+            c.execute(query,vals)
             
         else:
             self.data[reqId].append({"Date":bar.date,"Open":bar.open,"High":bar.high,"Low":bar.low,"Close":bar.close,"Volume":bar.volume})
@@ -110,7 +113,7 @@ class TradeApp(EWrapper, EClient):
         
 ############################### IBAPI functions ###############################
 # formalizes contract (stock) objects for IBAPI to understand
-def usTechStk(symbol,sec_type="STK",currency="USD",exchange="ISLAND"):
+def usTechStk(symbol,sec_type="STK",currency="USD",exchange="NASDAQ"):
     contract = Contract()
     contract.symbol = symbol
     contract.secType = sec_type
