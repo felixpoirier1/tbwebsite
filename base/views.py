@@ -5,6 +5,7 @@ from django.shortcuts import render
 from urllib3 import HTTPResponse
 from .IBAPI.main import *
 from .IBAPI.learn import *
+from .IBAPI.connection import *
 #from .IBAPI.stream_manager import *
 import datetime as dt
 import pytz as pytz
@@ -21,54 +22,11 @@ from django.urls import reverse_lazy
 
 tz = pytz.timezone('US/Eastern')
 
-def get_status():
-    with open('base/IBAPI/Data/status.txt', 'r') as status_file:
-        status = status_file.read()
-        status_file.close()
-    if app.isConnected() and status != 'running':
-        set_status("connected")    
-    return status
 
-def set_status(arg=None):
-    print(f"###{app.isConnected()}###")
-    if app.isConnected():
-        if arg == "connected":
-            with open('base/IBAPI/Data/status.txt', 'w') as status_file:
-                    status_file.write('connected')
-                    status_file.close()
-        
-        elif arg == "running":
-            with open('base/IBAPI/Data/status.txt', 'w') as status_file:
-                    status_file.write('running')
-                    status_file.close()
-    else:
-        with open('base/IBAPI/Data/status.txt', 'w') as status_file:
-                    status_file.write('not connected')
-                    status_file.close()
-    
-
-def connect():
-    app.connect(host='127.0.0.1', port=7497, clientId=23) #port 4002 for ib gateway paper trading/7497 for TWS paper trading
-
-    if (app.isConnected()):
-        set_status("connected")
-        # start of the connection thread||
-        con_thread = threading.Thread(target=websocket_con, args=(app,), daemon=True)
-        con_thread.start()
-        time.sleep(1)
     
         
 def trading_bot():
     while True:
-        # for ticker in tickers_chosen:
-        #     # activates streamData function which activates tick by tick data wrapper function
-        #     streamData(app, tickers_chosen.index(ticker), usTechStk(ticker))
-        #     print(f'streaming data for {ticker}')
-
-        # with open('base/IBAPI/Data/lasttradingday.txt', 'r') as text_file:
-        #     last_trading_day = text_file.read()     
-        #     text_file.close()
-
         if exit_event.is_set() or get_status() == "not connected":
             time.sleep(2)
             pass
@@ -103,7 +61,7 @@ def home(request):
     tickers_chosen = []
     context = {}
 
-    context['stock_names'] = stock_names
+    context['stock_names'] = tickers
     # to notify user if he has selected any stocks
     tickers_is_empty = True if len(tickers_chosen)==0 else False
 
@@ -112,7 +70,7 @@ def home(request):
 
     # dataframe of positions handled by TradeApp object
     app.reqPositions()
-    pos_df = app.pos_df
+    pos_df = app.pos_df.drop_duplicates()
     json_pos = pos_df.reset_index().to_json(orient ='records')
     pos = []
     pos = json.loads(json_pos)
@@ -122,9 +80,10 @@ def home(request):
     app.reqAccountSummary(1, "All", "$LEDGER:ALL")
     time.sleep(1)
     acc_summ_df = app.summary_df
-    json_account = acc_summ_df.reset_index().to_json(orient ='records')
-    account = []
-    account = json.loads(json_account)
+    #json_account = acc_summ_df.reset_index().to_json(orient ='records')
+    #account = []
+    #account = json.loads(json_account)
+    
     
     #cash_balance = acc_summ_df.iloc[acc_summ_df['Tag']=='CashBalance']['Value']
 
