@@ -18,6 +18,7 @@ import pandas as pd
 import time
 from pandas.tseries.holiday import USFederalHolidayCalendar as calendar
 #from optimizer import Portfolio
+import json
 import os
 import yahoo_fin.stock_info as si
 
@@ -37,7 +38,6 @@ def fetchTickers():
 global tickers
 fetchTickers()
 tickers = pd.read_csv("base/IBAPI/stocks_data.csv")
-print(tickers.iloc[0:5])
 tickers = tickers["0"].to_list()
 
 #tickers = ["META","INTC","AMZN", 'FTNT', 'MSFT', 'GOOGL', 'TSLA', 'JNJ', 'UNH', 'META', 'SHOP']
@@ -55,8 +55,9 @@ class TradeApp(EWrapper, EClient):
         EClient.__init__(self, self)
         self.data = {}
         self.pos_df = pd.DataFrame(columns = ["Account","Symbol","SecType",
-                                               "Currency","Position","Avg cost"])
+                                               "Currency","Position","Avg_cost"])
         self.summary_df = pd.DataFrame(columns = ["ReqId","Account","Tag","Value","Currency"])
+        self.summary_evt = threading.Event()
         
     def nextValidId(self, orderId):
         super().nextValidId(orderId)
@@ -64,15 +65,35 @@ class TradeApp(EWrapper, EClient):
         print("NextValidId:", orderId)
 
     def accountSummary(self, reqId, account, tag, value, currency):
+        self.summ_id = reqId
         super().accountSummary(reqId, account, tag, value, currency)
         dictionary = {"ReqId":reqId, "Account": account, "Tag": tag, "Value": value, "Currency": currency}
+        
         self.summary_df = self.summary_df.append(dictionary, ignore_index=True)
+
+
+        self.summary_evt.wait()
+        summ_json_df = self.summary_df
+        summ_json_df = summ_json_df[~summ_json_df.Tag.duplicated(keep='first')].set_index("Tag").loc[["Currency", "TotalCashBalance", "StockMarketValue", "NetDividend"]].reset_index()
+        summ_json_df.to_json("base/IBAPI/Data/Account/summary.json")
+
+    
+    def accountSummaryEnd(self, reqId):
+        super().accountSummaryEnd(self.summ_id)
+        print("\SOMETHING\n")
+        self.summary_evt.set()
+        print("\nFINISHED\n")
+
 
     def position(self, account, contract, position, avgCost):
         super().position(account, contract, position, avgCost)
         dictionary = {"Account":account, "Symbol": contract.symbol, "SecType": contract.secType,
                       "Currency": contract.currency, "Position": position, "Avg_cost": avgCost}
         self.pos_df = self.pos_df.append(dictionary, ignore_index=True)
+        pos_json_df = self.pos_df.drop_duplicates()
+        pos_json_df["Avg_cost"] = pos_json_df["Avg_cost"].round(3)
+        pos_json_df = pos_json_df.reset_index()#.to_json(orient ='records')
+        pos_json_df.to_json("base/IBAPI/Data/Account/positions.json")
 
     def historicalData(self, reqId, bar):
         stocks = si.tickers_nasdaq()

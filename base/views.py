@@ -7,14 +7,7 @@ from .IBAPI.main import *
 from .IBAPI.learn import *
 from .IBAPI.connection import *
 #from .IBAPI.stream_manager import *
-import datetime as dt
-import pytz as pytz
-import threading
-import pandas as pd
-import time
 from pandas.tseries.holiday import USFederalHolidayCalendar as calendar
-import os
-import json
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
@@ -70,20 +63,20 @@ def home(request):
 
     # dataframe of positions handled by TradeApp object
     app.reqPositions()
-    pos_df = app.pos_df.drop_duplicates()
-    json_pos = pos_df.reset_index().to_json(orient ='records')
-    pos = []
-    pos = json.loads(json_pos)
-    context['pos'] = pos
 
     #  dataframe of account summary
-    app.reqAccountSummary(1, "All", "$LEDGER:ALL")
-    time.sleep(1)
-    acc_summ_df = app.summary_df
+    app.reqAccountSummary(9002, "All", "$LEDGER")
+    """time.sleep(1)
+    summ_df = app.summary_df
+    summ_df = summ_df[~summ_df.Tag.duplicated(keep='first')].set_index("Tag").loc[["Currency", "TotalCashBalance", "StockMarketValue", "NetDividend"]].reset_index()
+    json_summ = summ_df.to_json(orient ='records') """
+    summ = []
+    #summ = json.loads(json_summ)
+    context['summ'] = summ
     #json_account = acc_summ_df.reset_index().to_json(orient ='records')
     #account = []
     #account = json.loads(json_account)
-    
+
     
     #cash_balance = acc_summ_df.iloc[acc_summ_df['Tag']=='CashBalance']['Value']
 

@@ -7,7 +7,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 
 # This program built for i386-apple-darwin11.3.0
 
-# Make data base, printed on Wed Jul 27 01:44:52 2022
+# Make data base, printed on Wed Aug  3 21:04:38 2022
 
 # Variables
 
@@ -40,13 +40,15 @@ __CFBundleIdentifier = com.microsoft.VSCode
 # environment
 INFOPATH = /opt/homebrew/share/info:
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /var/folders/t4/jrhxf1_d5qg35w33sf68p_jw0000gn/T/vscode-ipc-4532fa7c-c903-4234-a128-7abcc8e02eb1.sock
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/t4/jrhxf1_d5qg35w33sf68p_jw0000gn/T/vscode-ipc-4c260534-726f-4b70-b7d0-9b5b8f3d2e67.sock
 # environment
 VSCODE_CWD = /
 # environment
+GSETTINGS_SCHEMA_DIR = /Users/felix/miniforge3/share/glib-2.0/schemas
+# environment
 PATH = /Users/felix/miniforge3/bin:/Users/felix/miniforge3/condabin:/Library/Frameworks/Python.framework/Versions/3.8/bin:/Library/Frameworks/Python.framework/Versions/3.10/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/share/dotnet:~/.dotnet/tools:/Library/Apple/usr/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands
 # environment
-LaunchInstanceID = 3B4C0E1C-BF8C-45AE-8518-98E92FE0B01F
+LaunchInstanceID = 7A641CA8-19DD-4BF5-BBF2-958374DD0DFD
 # environment
 VSCODE_LOG_STACK = false
 # environment
@@ -54,7 +56,7 @@ ELECTRON_RUN_AS_NODE = 1
 # default
 .FEATURES := target-specific order-only second-expansion else-if archives jobserver check-symlink
 # environment
-SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.wluBw53adv/Listeners
+SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.pENm7Y3xsb/Listeners
 # automatic
 %F = $(notdir $%)
 # environment
@@ -132,6 +134,8 @@ HOMEBREW_PREFIX = /opt/homebrew
 # automatic
 +F = $(notdir $+)
 # environment
+GSETTINGS_SCHEMA_DIR_CONDA_BACKUP = 
+# environment
 HOMEBREW_REPOSITORY = /opt/homebrew
 # environment
 __CF_USER_TEXT_ENCODING = 0x1F5:0x0:0xB
@@ -146,7 +150,7 @@ LC_ALL = C
 # environment
 CONDA_PYTHON_EXE = /Users/felix/miniforge3/bin/python
 # environment
-SECURITYSESSIONID = 186b9
+SECURITYSESSIONID = 186b8
 # automatic
 ^F = $(notdir $^)
 # default
@@ -158,13 +162,13 @@ MAKELEVEL := 0
 # environment
 CONDA_PREFIX = /Users/felix/miniforge3
 # environment
-VSCODE_PID = 610
+VSCODE_PID = 605
 # environment
 _CE_CONDA = 
 # environment
 LANG = C
 # variable set hash-table stats:
-# Load=76/1024=7%, Rehash=0, Collisions=2/96=2%
+# Load=78/1024=8%, Rehash=0, Collisions=2/98=2%
 
 # Pattern-specific Variable Values
 
@@ -172,9 +176,9 @@ LANG = C
 
 # Directories
 
-# . (device 16777244, inode 1979367): 18 files, no impossibilities.
+# . (device 16777244, inode 1979367): 20 files, no impossibilities.
 
-# 18 files, no impossibilities in 1 directories.
+# 20 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -246,7 +250,7 @@ GNUmakefile:
 # strcache size: total = 0 / max = 0 / min = 4096 / avg = 0
 # strcache free: total = 0 / max = 0 / min = 4096 / avg = 0
 
-# Finished Make data base on Wed Jul 27 01:44:52 2022
+# Finished Make data base on Wed Aug  3 21:04:38 2022
 
  
 make: *** No rule to make target `all'.  Stop.

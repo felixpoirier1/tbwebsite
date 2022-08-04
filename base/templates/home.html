@@ -55,6 +55,31 @@ table.t1 {
 .t1 tr *:nth-child(3), .t1 tr *:nth-child(4) {
   text-align: right;
 }
+
+/* CSS property for content section */
+.columnA, .columnB, .columnC {
+    float: left;
+    width: 33%;
+    padding: 0px;
+    text-align:justify;
+}
+h2 {
+    color:green;
+    text-align:center;
+}
+  
+/* Media query to set website layout
+according to screen size */
+@media screen and (max-width:600px) {
+    .columnA, .columnB, .columnC {
+        width: 50%;
+    }
+}
+@media screen and (max-width:400px) {
+    .columnA, .columnB, .columnC {
+        width: 100%;
+    }
+}
 </style>
 
 <head>
@@ -106,7 +131,7 @@ table.t1 {
         <h2 class="portfolio-title" style="color:rgb(76, 235, 149);">My NASDAQ trading bot ({{status}})</h2>
         
           <div class="row">
-            <div class="col-lg-4 portfolio-info" style="color:rgb(210, 210, 210); background:rgb(20, 20, 20);">
+            <div class="col-lg-2 portfolio-info" style="color:rgb(210, 210, 210); background:rgb(20, 20, 20);">
               <form name="startapp" method="POST">
                 {% csrf_token %}
                   {% csrf_token %}
@@ -126,7 +151,7 @@ table.t1 {
                   {% if status == 'connected' %}
                   <h4>Select stocks</h4>
                   <p>Choose between 1 to 6 stocks for best performance</p>
-                    <select name="stocks" size="10" style="background:rgb(178, 178, 178); width: 400px;" multiple>
+                    <select name="stocks" size="10" style="background:rgb(178, 178, 178); width: 200px;" multiple>
                         {% for name in stock_names %}
                             <option type="checkbox" value="{{name}}">{{name}}</option>
                         {% endfor %}
@@ -181,9 +206,11 @@ table.t1 {
                     <h1>Positions</h1>
             </div>-->
 
-            <div class="col-lg-8 portfolio-info" style="color:rgb(210, 210, 210); background:rgb(60, 60, 60);">
+            <div class="col-lg-10 portfolio-info" style="color:rgb(210, 210, 210); background:rgb(60, 60, 60);">
+              <div class="row">
               <h4>My account</h4>
-              <div>
+              <div class = "col">
+                <div class="columnA">
                 {% if pos %} 
                 <table class="t1">
                   <thead>
@@ -206,10 +233,60 @@ table.t1 {
                   </table>
                 {% endif %}
               </div>
+
+                {% if summ %} 
+                <div class="columnB">
+                <table class="t1">
+                  <thead>
+                  <tr>Summary</tr>
+                  <tr><th>Tag</th><th>Value</th></tr>
+                  </thead>
+                  <tfoot>
+                  <tr><th colspan="4">Summary of your account</th></tr>
+                  </tfoot>
+                  <tbody>
+                    {% for i in summ %}
+                      <tr>
+                        <th>{{i.Tag}}</th>
+                        <td>{{i.Value}}</td>
+
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                  </table>
+                
+              </div>
+              {% endif %}
+              <div class="columnB">
+                {% if pos %} 
+                <table class="t1">
+                  <thead>
+                  <tr>Positions</tr>
+                  <tr><th>Symbol</th><th>Type</th><th>Position</th><th>Average cost</th></tr>
+                  </thead>
+                  <tfoot>
+                  <tr><th colspan="4">Positions held in your account</th></tr>
+                  </tfoot>
+                  <tbody>
+                    {% for i in pos %}
+                      <tr>
+                        <th>{{i.Symbol}}</th>
+                        <td>{{i.SecType}}</td>
+                        <td>{{i.Position}}</td>
+                        <td>{{i.Avg_cost}}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                  </table>
+                {% endif %}
+              </div>
+            </div>
+              </div>
+
               <h4>View stocks</h4>
                     <!-- TradingView Widget BEGIN -->
                     <div class="tradingview-widget-container">
-                      <div id="tradingview_07451" style="height:400px;"></div>
+                      <div id="tradingview_07451" style="height:600px;"></div>
                       <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/symbols/NASDAQ-AAPL/" rel="noopener" target="_blank"></div>
                       <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
                       <script type="text/javascript">
@@ -222,7 +299,7 @@ table.t1 {
                       "theme": "dark",
                       "style": "8",
                       "locale": "en",
-                      "toolbar_bg": "#f1f3f6",
+                      "toolbar_bg": "#3C444E",
                       "enable_publishing": false,
                       "withdateranges": true,
                       "allow_symbol_change": true,
