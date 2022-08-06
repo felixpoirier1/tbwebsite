@@ -14,9 +14,6 @@ from django.urls import reverse_lazy
 
 
 tz = pytz.timezone('US/Eastern')
-
-
-    
         
 def trading_bot():
     while True:
@@ -48,7 +45,6 @@ def traidingDayCond():
 
 connect()
 
-set_status("connected")
 def home(request):
     # list of all the stock names (to be displayed to front end)
     tickers_chosen = []
@@ -65,7 +61,7 @@ def home(request):
     app.reqPositions()
 
     #  dataframe of account summary
-    app.reqAccountSummary(9002, "All", "$LEDGER")
+    reqAccountSumm(app, 1)
     """time.sleep(1)
     summ_df = app.summary_df
     summ_df = summ_df[~summ_df.Tag.duplicated(keep='first')].set_index("Tag").loc[["Currency", "TotalCashBalance", "StockMarketValue", "NetDividend"]].reset_index()

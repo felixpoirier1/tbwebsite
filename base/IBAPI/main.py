@@ -57,12 +57,13 @@ class TradeApp(EWrapper, EClient):
         self.pos_df = pd.DataFrame(columns = ["Account","Symbol","SecType",
                                                "Currency","Position","Avg_cost"])
         self.summary_df = pd.DataFrame(columns = ["ReqId","Account","Tag","Value","Currency"])
-        self.summary_evt = threading.Event()
         
+
     def nextValidId(self, orderId):
         super().nextValidId(orderId)
         self.nextValidOrderId = orderId
         print("NextValidId:", orderId)
+
 
     def accountSummary(self, reqId, account, tag, value, currency):
         self.summ_id = reqId
@@ -70,30 +71,27 @@ class TradeApp(EWrapper, EClient):
         dictionary = {"ReqId":reqId, "Account": account, "Tag": tag, "Value": value, "Currency": currency}
         
         self.summary_df = self.summary_df.append(dictionary, ignore_index=True)
-
-
-        self.summary_evt.wait()
-        summ_json_df = self.summary_df
-        summ_json_df = summ_json_df[~summ_json_df.Tag.duplicated(keep='first')].set_index("Tag").loc[["Currency", "TotalCashBalance", "StockMarketValue", "NetDividend"]].reset_index()
-        summ_json_df.to_json("base/IBAPI/Data/Account/summary.json")
-
     
     def accountSummaryEnd(self, reqId):
         super().accountSummaryEnd(self.summ_id)
-        print("\SOMETHING\n")
-        self.summary_evt.set()
-        print("\nFINISHED\n")
-
+        summary_evt.set()
+        
 
     def position(self, account, contract, position, avgCost):
         super().position(account, contract, position, avgCost)
         dictionary = {"Account":account, "Symbol": contract.symbol, "SecType": contract.secType,
-                      "Currency": contract.currency, "Position": position, "Avg_cost": avgCost}
-        self.pos_df = self.pos_df.append(dictionary, ignore_index=True)
+                      "Currency": contract.currency, "Position": position, "Avg cost": avgCost}
+        if self.pos_df["Symbol"].str.contains(contract.symbol).any():
+            self.pos_df.loc[self.pos_df["Symbol"]==contract.symbol,"Position"] = position
+            self.pos_df.loc[self.pos_df["Symbol"]==contract.symbol,"Avg cost"] = avgCost
+        else:
+            self.pos_df = self.pos_df.append(dictionary, ignore_index=True)
+        
         pos_json_df = self.pos_df.drop_duplicates()
         pos_json_df["Avg_cost"] = pos_json_df["Avg_cost"].round(3)
         pos_json_df = pos_json_df.reset_index()#.to_json(orient ='records')
         pos_json_df.to_json("base/IBAPI/Data/Account/positions.json")
+
 
     def historicalData(self, reqId, bar):
         stocks = si.tickers_nasdaq()
@@ -109,6 +107,7 @@ class TradeApp(EWrapper, EClient):
         else:
             self.data[reqId].append({"Date":bar.date,"Open":bar.open,"High":bar.high,"Low":bar.low,"Close":bar.close,"Volume":bar.volume})
     
+
     # calls tickByTickAllLast() and sends data to SQL database
     def tickByTickAllLast(self, reqId, tickType, time, price, size, tickAtrribLast, exchange, specialConditions):
         super().tickByTickAllLast(reqId, tickType, time, price, size, tickAtrribLast, exchange, specialConditions)
@@ -164,6 +163,18 @@ def streamData(app, req_num, contract):
                           tickType="AllLast",
                           numberOfTicks=0,
                           ignoreSize=True)
+
+                          
+summary_evt = threading.Event()
+
+def reqAccountSumm(app, reqId):
+    app.reqAccountSummary(reqId, "All", "$LEDGER")
+    summary_evt.wait()
+    summ_json_df = app.summary_df
+    summ_json_df = summ_json_df[~summ_json_df.Tag.duplicated(keep='first')].set_index("Tag").loc[["Currency", "TotalCashBalance", "StockMarketValue", "NetDividend"]].reset_index()
+    summ_json_df.to_json("base/IBAPI/Data/Account/summary.json")
+
+
 
 ############################ Function (SQL & API) #############################    
 def websocket_con(app):
