@@ -55,7 +55,7 @@ class TradeApp(EWrapper, EClient):
         EClient.__init__(self, self)
         self.data = {}
         self.pos_df = pd.DataFrame(columns = ["Account","Symbol","SecType",
-                                               "Currency","Position","Avg_cost"])
+                                               "Currency","Position","Avg cost"])
         self.summary_df = pd.DataFrame(columns = ["ReqId","Account","Tag","Value","Currency"])
         
 
@@ -66,6 +66,7 @@ class TradeApp(EWrapper, EClient):
 
 
     def accountSummary(self, reqId, account, tag, value, currency):
+        print("ACCOUNT SUMMARY")
         self.summ_id = reqId
         super().accountSummary(reqId, account, tag, value, currency)
         dictionary = {"ReqId":reqId, "Account": account, "Tag": tag, "Value": value, "Currency": currency}
@@ -85,12 +86,18 @@ class TradeApp(EWrapper, EClient):
             self.pos_df.loc[self.pos_df["Symbol"]==contract.symbol,"Position"] = position
             self.pos_df.loc[self.pos_df["Symbol"]==contract.symbol,"Avg cost"] = avgCost
         else:
+            print("POSITION")
             self.pos_df = self.pos_df.append(dictionary, ignore_index=True)
+            print("POSITION END APPEND")
         
         pos_json_df = self.pos_df.drop_duplicates()
-        pos_json_df["Avg_cost"] = pos_json_df["Avg_cost"].round(3)
+        print(pos_json_df.dtypes)
+        
+        pos_json_df["Avg cost"] = pos_json_df["Avg cost"].round(3)
+
         pos_json_df = pos_json_df.reset_index()#.to_json(orient ='records')
         pos_json_df.to_json("base/IBAPI/Data/Account/positions.json")
+        print("POSITION END")
 
 
     def historicalData(self, reqId, bar):
@@ -164,11 +171,12 @@ def streamData(app, req_num, contract):
                           numberOfTicks=0,
                           ignoreSize=True)
 
-                          
+
 summary_evt = threading.Event()
 
 def reqAccountSumm(app, reqId):
     app.reqAccountSummary(reqId, "All", "$LEDGER")
+    print("\n")
     summary_evt.wait()
     summ_json_df = app.summary_df
     summ_json_df = summ_json_df[~summ_json_df.Tag.duplicated(keep='first')].set_index("Tag").loc[["Currency", "TotalCashBalance", "StockMarketValue", "NetDividend"]].reset_index()

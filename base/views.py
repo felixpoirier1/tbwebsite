@@ -8,10 +8,6 @@ from .IBAPI.learn import *
 from .IBAPI.connection import *
 #from .IBAPI.stream_manager import *
 from pandas.tseries.holiday import USFederalHolidayCalendar as calendar
-from django.http import HttpResponse
-from django.http import HttpResponseRedirect
-from django.urls import reverse_lazy
-
 
 tz = pytz.timezone('US/Eastern')
         
@@ -49,34 +45,22 @@ def home(request):
     # list of all the stock names (to be displayed to front end)
     tickers_chosen = []
     context = {}
+    print("\n")
 
     context['stock_names'] = tickers
     # to notify user if he has selected any stocks
     tickers_is_empty = True if len(tickers_chosen)==0 else False
 
     stoploss = '0%'
-
-
     # dataframe of positions handled by TradeApp object
     app.reqPositions()
-
     #  dataframe of account summary
     reqAccountSumm(app, 1)
-    """time.sleep(1)
-    summ_df = app.summary_df
-    summ_df = summ_df[~summ_df.Tag.duplicated(keep='first')].set_index("Tag").loc[["Currency", "TotalCashBalance", "StockMarketValue", "NetDividend"]].reset_index()
-    json_summ = summ_df.to_json(orient ='records') """
+    print("HIEWFF")
+
     summ = []
     #summ = json.loads(json_summ)
     context['summ'] = summ
-    #json_account = acc_summ_df.reset_index().to_json(orient ='records')
-    #account = []
-    #account = json.loads(json_account)
-
-    
-    #cash_balance = acc_summ_df.iloc[acc_summ_df['Tag']=='CashBalance']['Value']
-
-    #acc_summ_df.to_excel('accsummary.xlsx')
 
     # reads the status.txt file to establish wether we are connected or running
     # this may need some improvement as we affirm "connected" regardless of the
@@ -135,7 +119,9 @@ def home(request):
                 exit_event.clear()
 
     # to let the front end know wether we're "connected" or "running"
+    print(2)
     status = get_status()
+    print(3)
     context["status"] = status
 
-    return render(request, 'home.html', context) 
+    return render(request, 'home.html', context)
